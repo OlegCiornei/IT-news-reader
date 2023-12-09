@@ -14,6 +14,7 @@ internal static class Program
         ApplicationConfiguration.Initialize();
 
         List<Sites> sites = new List<Sites>();
+        sites.Add(Sites.Tproger);
         sites.Add(Sites.Habr);
         ArticlesParser.GetArticles(sites).ForEach(i => Console.WriteLine("{0}", i));
 

@@ -8,6 +8,7 @@ abstract class ArticlesParser
 {
     public static List<Article> GetArticles(List<Sites> sites)
     {
+        List<Article> articles = new List<Article>();
         foreach (var site in sites)
         {
             string url = site.Url;
@@ -17,12 +18,10 @@ abstract class ArticlesParser
             var titles = doc.DocumentNode.SelectNodes(site.TitleTag);
             var texts = doc.DocumentNode.SelectNodes(site.TextTag);
             var links = doc.DocumentNode.SelectNodes(site.LinkTag);
-            var imageLinks = doc.DocumentNode.SelectNodes(site.ImageLinkTag);
 
-            if (titles != null)
+            if (articlesParsed != null)
             {
-                List<Article> articles = new List<Article>();
-                for (int currentArticle = 0; currentArticle < titles.Count; currentArticle++)
+                for (int currentArticle = 0; currentArticle < articlesParsed.Count; currentArticle++)
                 {
                     string title = titles[currentArticle].InnerText.Trim();
                     string text = texts[currentArticle].InnerText
@@ -30,25 +29,26 @@ abstract class ArticlesParser
                         .Replace("&nbsp;", " ")
                         .Trim();
                     string link = ExtractSubstringBetweenPatterns(
-                        links[currentArticle].OuterHtml, "href=\"", "\" class=");
+                        links[currentArticle].OuterHtml, site.StartLinkPattern, site.EndLinkPattern);
 
                     string imageLink = null!;
-                    if (articlesParsed[currentArticle].OuterHtml.Contains("<img src=\""))
+                    if (articlesParsed[currentArticle].OuterHtml.Contains(site.ImageStartLinkPatter))
                     {
                         imageLink = ExtractSubstringBetweenPatterns(
-                            articlesParsed[currentArticle].OuterHtml, "<img src=\"", "\"");
+                            articlesParsed[currentArticle].OuterHtml, site.ImageStartLinkPatter,
+                            site.ImageEndLinkPatter);
                     }
 
                     articles.Add(new Article(title, text, site.Domain + link, imageLink!));
                 }
-
-                return articles;
             }
-
-            Console.WriteLine("Unable to find news.");
+            else
+            {
+                Console.WriteLine("Unable to find news on " + site.Domain);
+            }
         }
 
-        return new List<Article>();
+        return articles;
     }
 
     private static string ExtractSubstringBetweenPatterns(string input, string startPattern, string endPattern)
