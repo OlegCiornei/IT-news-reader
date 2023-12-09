@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
+﻿using System.Data;
 using Microsoft.Data.Sqlite;
 
 namespace it_news_reader;
@@ -13,11 +12,8 @@ internal class SqliteManager //: IDBManager
         var workingDirectory = Environment.CurrentDirectory;
         var path = Directory.GetParent(workingDirectory).Parent.Parent.FullName + "/Data/sqlite.db";
         _connectionString = $"Data Source={path}";
-        if (File.Exists(path))
-        {
-            return;
-        }
-        
+        if (File.Exists(path)) return;
+
         // create db file
         using (var connection = new SqliteConnection(_connectionString))
         {
@@ -40,19 +36,17 @@ internal class SqliteManager //: IDBManager
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.HasRows)
-                    {
-                        for (int i = 0; i < reader.FieldCount; i++)
+                        for (var i = 0; i < reader.FieldCount; i++)
                             entries.Columns.Add(new DataColumn(reader.GetName(i)));
-                    }
 
-                    int j = 0;
+                    var j = 0;
                     while (reader.Read())
                     {
                         var row = entries.NewRow();
                         entries.Rows.Add(row);
 
-                        for (int i = 0; i < reader.FieldCount; i++)
-                            entries.Rows[j][i] = (reader.GetValue(i));
+                        for (var i = 0; i < reader.FieldCount; i++)
+                            entries.Rows[j][i] = reader.GetValue(i);
 
                         j++;
                     }
@@ -80,14 +74,8 @@ internal class SqliteManager //: IDBManager
 
     private void AddParameters(SqliteCommand command, object[] parameters)
     {
-        if (parameters == null)
-        {
-            return;
-        }
+        if (parameters == null) return;
 
-        for (int i = 0; i < parameters.Length; i++)
-        {
-            command.Parameters.AddWithValue($"$param{i + 1}", parameters[i]);
-        }
+        for (var i = 0; i < parameters.Length; i++) command.Parameters.AddWithValue($"$param{i + 1}", parameters[i]);
     }
 }

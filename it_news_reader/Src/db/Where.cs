@@ -2,15 +2,15 @@
 
 internal class Where
 {
-    private readonly string _table;
     private readonly string _op;
+    private readonly string _table;
     private readonly dynamic _value;
 
     public Where(string table, dynamic value, string op = "=")
     {
-        this._table = table;
-        this._op = op;
-        this._value = value;
+        _table = table;
+        _op = op;
+        _value = value;
     }
 
     public string Get()

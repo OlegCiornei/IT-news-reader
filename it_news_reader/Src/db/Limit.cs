@@ -1,14 +1,14 @@
 ﻿namespace it_news_reader;
 
-class Limit
+internal class Limit
 {
-    private int Offset;
-    private int Lim;
+    private readonly int Lim;
+    private readonly int Offset;
 
     public Limit(int offset, int lim)
     {
-        this.Offset = offset;
-        this.Lim = lim;
+        Offset = offset;
+        Lim = lim;
     }
 
     public string Get()

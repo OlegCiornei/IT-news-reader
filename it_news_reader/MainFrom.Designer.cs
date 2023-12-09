@@ -1,6 +1,6 @@
 ﻿namespace it_news_reader;
 
-partial class Form1
+partial class MainFrom
 {
     /// <summary>
     ///  Required designer variable.
@@ -32,7 +32,9 @@ partial class Form1
         this.components = new System.ComponentModel.Container();
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         this.ClientSize = new System.Drawing.Size(800, 450);
-        this.Text = "Form1";
+        this.StartPosition = FormStartPosition.Manual;
+        this.Location = new System.Drawing.Point(800, 300); 
+        this.Text = "Main form";
     }
 
     #endregion
