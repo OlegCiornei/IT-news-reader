@@ -16,8 +16,25 @@ internal static class Program
         List<Sites> sites = new List<Sites>();
         sites.Add(Sites.Tproger);
         sites.Add(Sites.Habr);
-        ArticlesParser.GetArticles(sites).ForEach(i => Console.WriteLine("{0}", i));
+        var manager = new SqliteManager();
+        ArticlesParser.GetArticles(sites).ForEach(i =>
+        {
+            var insertQuery = new QueryBuilder().Insert("articles")
+                .Field("title,text,link,image")
+                .Values(ToStringList(new[]
+                {
+                    i.GetTitle().Replace("'", "’"),
+                    i.GetText().Replace("'", "’"),
+                    i.GetLink(), i.GetImageLink()
+                })).Get();
+            manager.Insert(insertQuery);
+        });
 
         //Application.Run(new MainFrom());
+    }
+
+    private static string ToStringList(string[] values)
+    {
+        return "'" + string.Join("','", values) + "'";
     }
 }

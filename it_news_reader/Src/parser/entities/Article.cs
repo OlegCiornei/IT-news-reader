@@ -15,6 +15,26 @@ public class Article
         ImageLink = imageLink;
     }
 
+    public string GetTitle()
+    {
+        return Title;
+    }
+
+    public string GetText()
+    {
+        return Text;
+    }
+
+    public string GetLink()
+    {
+        return Link;
+    }
+
+    public string GetImageLink()
+    {
+        return ImageLink;
+    }
+
     public override string ToString()
     {
         return "\t" + Title + Environment.NewLine +
