@@ -50,8 +50,9 @@ internal class QueryBuilder
         return this;
     }
 
-    public QueryBuilder Delete()
+    public QueryBuilder Delete(string table)
     {
+        _table = table;
         _type = DELETE;
         return this;
     }

@@ -72,6 +72,19 @@ internal class SqliteManager //: IDBManager
         }
     }
 
+    public int Delete(string query, params object[] parameters)
+    {
+        using (var connection = new SqliteConnection(_connectionString))
+        {
+            connection.Open();
+            using (var command = new SqliteCommand(query, connection))
+            {
+                AddParameters(command, parameters);
+                return command.ExecuteNonQuery();
+            }
+        }
+    }
+
     private void AddParameters(SqliteCommand command, object[] parameters)
     {
         if (parameters == null) return;

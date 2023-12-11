@@ -1,3 +1,4 @@
+using it_news_reader.job;
 using it_news_reader.parser;
 using it_news_reader.parser.entities;
 
@@ -6,7 +7,7 @@ namespace it_news_reader;
 internal static class Program
 {
     [STAThread]
-    private static void Main()
+    private static async Task Main()
     {
         Console.WriteLine("===================");
         Console.WriteLine("Application started");
@@ -29,8 +30,22 @@ internal static class Program
                 })).Get();
             manager.Insert(insertQuery);
         });
+        
+        Task.Run(() => Application.Run(new MainFrom()));
+        
+        using (var cancellationTokenSource = new CancellationTokenSource())
+        {
+            var worker = new Worker();
 
-        //Application.Run(new MainFrom());
+            var workerTask = Task.Run(() => worker.StartAsync(cancellationTokenSource.Token, sites));
+
+            Console.WriteLine("Press any key to stop the worker...");
+            Console.ReadLine();
+
+            cancellationTokenSource.Cancel();
+            await workerTask;
+        }
+
     }
 
     private static string ToStringList(string[] values)
