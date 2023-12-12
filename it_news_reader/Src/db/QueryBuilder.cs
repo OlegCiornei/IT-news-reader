@@ -15,7 +15,7 @@ internal class QueryBuilder
     // query patterns
     private readonly Dictionary<string, string> _patterns = new()
     {
-        { SELECT, "select %fields% from %table% %where% %limit%;" },
+        { SELECT, "select %fields% from %table% %where% %order% %limit%;" },
         { UPDATE, "update %table% SET %values% %where%;" },
         { INSERT, "insert or replace into %table% (%fields%) values (%values%);" },
         { DELETE, "delete from  %table% %where%;" }
@@ -92,12 +92,18 @@ internal class QueryBuilder
         _values.Add(values);
         return this;
     }
+    public QueryBuilder Order(string column, string order)
+    {
+        _order.Add(_order.Count == 0 ? $"order by {column} {order}" : $", {column} {order}");
+        return this;
+    }
 
     public string Get()
     {
         return Strings.RTrim(_patterns[_type].Replace("%table%", _table)
             .Replace("%fields%", string.Join(",", _fields.ToArray()))
             .Replace("%where%", string.Join("", _where.ToArray()))
+            .Replace("%order%", string.Join("", _order.ToArray()))
             .Replace("%limit%", string.Join("", _limit.ToArray()))
             .Replace("%values%", string.Join(",", _values.ToArray())));
     }

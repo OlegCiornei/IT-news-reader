@@ -1,24 +1,23 @@
+using System.Collections;
 using System.Data;
-using Timer = System.Windows.Forms.Timer;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace it_news_reader;
 
 public partial class MainForm : Form
 {
-    private PictureBox pictureBox;
     private ListBox entityList;
-    private TextBox entityText;
-    private PictureBox entityImage;
     private Panel leftPanel;
     private StatusStrip statusBar;
     private ToolStripStatusLabel timeStatusLabel;
-    private Timer timer;
-    private PictureBox leftImageBox;
-    private TextBox ArticleName;
-    private TextBox ArticleText;
-    private Dictionary<int, int> articlesOrderId;
+    private System.Windows.Forms.Timer timer;
+    private Dictionary<int, string> articlesOrderId;
     private FlowLayoutPanel flowLayoutPanel;
     private Rectangle Bound; 
+    ToolStripMenuItem habrMenuItem;
+    ToolStripMenuItem tprogerMenuItem;
+    ToolStripMenuItem allMenuItem ;
+
     public MainForm()
     {
         //InitializeComponent();
@@ -31,10 +30,10 @@ public partial class MainForm : Form
     {
         Bound = Screen.FromControl(this).Bounds;
         InitializeStatusBar();
-        InitializeFlowLayotDesign();
         InitializeTimer();
         InitializeLeftPanel();
         InitializeMenu();
+        InitializeFlowLayotDesign();
     }
     private void InitializeFlowLayotDesign()
     {
@@ -42,9 +41,10 @@ public partial class MainForm : Form
         {
             AutoScroll = true,
             WrapContents = true,
-            Location = new Point(Bound.Width / 100 * 20, Bound.Height / 100 * 10),
+            Location = new Point(Bound.Width / 100 * 25, Bound.Height / 100 * 5),
             Size = new Size(Bound.Width / 100 * 75, Bound.Height),
         };
+        Controls.Add(flowLayoutPanel);
         var query = new QueryBuilder().Select("title, link, image, text")
                                           .From("articles")
                                           .Get();
@@ -61,7 +61,7 @@ public partial class MainForm : Form
                     Bound.Width / 100 * 25,
                     Bound.Width / 100 * 95,
                     Bound.Height / 100 * 10,
-                    Bound.Width / 100 * 50
+                    Bound.Height / 100 * 80
                 );
 
                 flowLayoutPanel.Controls.Add(entity);
@@ -69,7 +69,6 @@ public partial class MainForm : Form
                 continue;
             }
         }
-        Controls.Add(flowLayoutPanel);
     }
     private void InitializeMenu()
     {
@@ -79,11 +78,207 @@ public partial class MainForm : Form
         ToolStripMenuItem siteMenuItem = new ToolStripMenuItem("Site");
         ToolStripMenuItem newestMenuItem = new ToolStripMenuItem("Newest");
         ToolStripMenuItem oldestMenuItem = new ToolStripMenuItem("Oldest");
+        refreshMenuItem.Click += RefreshMenuItem_Click;
+        newestMenuItem.Click += NewestMenuItem_Click;
+        oldestMenuItem.Click += OldestMenuItem_Click;
+
+        habrMenuItem = new ToolStripMenuItem("Habr");
+        tprogerMenuItem = new ToolStripMenuItem("Tproger");
+        allMenuItem = new ToolStripMenuItem("All");
+
+        siteMenuItem.DropDownItems.Add(habrMenuItem);
+        siteMenuItem.DropDownItems.Add(tprogerMenuItem);
+        siteMenuItem.DropDownItems.Add(allMenuItem);
+
+        tprogerMenuItem.Click += Tproger_Click;
+        habrMenuItem.Click += Habr_Click;
+        allMenuItem.Click += RefreshMenuItem_Click;
+        allMenuItem.Checked = true;
 
         menuStrip.Items.AddRange(new ToolStripItem[] {refreshMenuItem, siteMenuItem, newestMenuItem, oldestMenuItem });
         MainMenuStrip = menuStrip;
         Controls.Add(menuStrip);
 
+    }
+    private void Tproger_Click(object sender, EventArgs e) 
+    {
+        allMenuItem.Checked = false;
+        habrMenuItem.Checked = false;
+        tprogerMenuItem.Checked = true;
+        flowLayoutPanel.Controls.Clear();
+        entityList.Items.Clear();
+        articlesOrderId.Clear();
+        var query = new QueryBuilder().Select("title, link, image, text")
+                                          .From("articles")
+                                          .AndWhere(new Where("link", @"'https://tproger.ru%'", "LIKE"))
+                                          .Get();
+        var result = new SqliteManager().Select(query);
+        List<EntityControl> flowLayoutPanelBuffer = new List<EntityControl>();
+        for (int i = 0; i < result.Rows.Count; ++i)
+        {
+            try { 
+                var entity = new EntityControl
+                (
+                    result.Rows[i]["title"].ToString(),
+                    result.Rows[i]["link"].ToString(),
+                    result.Rows[i].IsNull("image") ? null : result.Rows[i]["image"].ToString(),
+                    result.Rows[i]["text"].ToString(),
+                    Bound.Width / 100 * 25,
+                    Bound.Width / 100 * 95,
+                    Bound.Height / 100 * 10,
+                    Bound.Height / 100 * 80
+                );
+                flowLayoutPanelBuffer.Add(entity);
+                entityList.Items.Add(result.Rows[i]["title"].ToString());
+                articlesOrderId.Add(i, result.Rows[i]["link"].ToString());
+            } catch { 
+                continue;
+            }
+        }
+        flowLayoutPanel.Controls.AddRange(flowLayoutPanelBuffer.ToArray());
+    }
+    private void Habr_Click(object sender, EventArgs e) 
+    {
+        allMenuItem.Checked = false;
+        habrMenuItem.Checked = true;
+        tprogerMenuItem.Checked = false;
+        flowLayoutPanel.Controls.Clear();
+        entityList.Items.Clear();
+        articlesOrderId.Clear();
+        var query = new QueryBuilder().Select("title, link, image, text")
+                                          .From("articles")
+                                          .AndWhere(new Where("link", @"'https://habr.com%'", "LIKE"))
+                                          .Get();
+        var result = new SqliteManager().Select(query);
+        List<EntityControl> flowLayoutPanelBuffer = new List<EntityControl>();
+        for (int i = 0; i < result.Rows.Count; ++i)
+        {
+            try { 
+                var entity = new EntityControl
+                (
+                    result.Rows[i]["title"].ToString(),
+                    result.Rows[i]["link"].ToString(),
+                    result.Rows[i].IsNull("image") ? null : result.Rows[i]["image"].ToString(),
+                    result.Rows[i]["text"].ToString(),
+                    Bound.Width / 100 * 25,
+                    Bound.Width / 100 * 95,
+                    Bound.Height / 100 * 10,
+                    Bound.Height / 100 * 80
+                );
+                flowLayoutPanelBuffer.Add(entity);
+                entityList.Items.Add(result.Rows[i]["title"].ToString());
+                articlesOrderId.Add(i, result.Rows[i]["link"].ToString());
+            } catch { 
+                continue;
+            }
+        }
+        flowLayoutPanel.Controls.AddRange(flowLayoutPanelBuffer.ToArray());
+    }
+    private void RefreshMenuItem_Click(object sender, EventArgs e) 
+    {
+        allMenuItem.Checked = true;
+        habrMenuItem.Checked = false;
+        tprogerMenuItem.Checked = false;
+        flowLayoutPanel.Controls.Clear();
+        articlesOrderId.Clear();
+        entityList.Items.Clear();
+        var query = new QueryBuilder().Select("title, link, image, text")
+                                          .From("articles")
+                                          .Get();
+        var result = new SqliteManager().Select(query);
+        List<EntityControl> flowLayoutPanelBuffer = new List<EntityControl>();
+        for (int i = 0; i < result.Rows.Count; ++i)
+        {
+            try { 
+                var entity = new EntityControl
+                (
+                    result.Rows[i]["title"].ToString(),
+                    result.Rows[i]["link"].ToString(),
+                    result.Rows[i].IsNull("image") ? null : result.Rows[i]["image"].ToString(),
+                    result.Rows[i]["text"].ToString(),
+                    Bound.Width / 100 * 25,
+                    Bound.Width / 100 * 95,
+                    Bound.Height / 100 * 10,
+                    Bound.Height / 100 * 80
+                );
+                flowLayoutPanelBuffer.Add(entity);
+                entityList.Items.Add(result.Rows[i]["title"].ToString());
+                articlesOrderId.Add(i, result.Rows[i]["link"].ToString());
+            } catch { 
+                continue;
+            }
+        }
+        flowLayoutPanel.Controls.AddRange(flowLayoutPanelBuffer.ToArray());
+    }
+    private void OldestMenuItem_Click(object sender, EventArgs e) 
+    {
+        flowLayoutPanel.Controls.Clear();
+        var query = new QueryBuilder().Select("title, link, image, text")
+                                          .From("articles")
+                                          .Order("date", "ASC")
+                                          .Order("link", "ASC")
+                                          .Get();
+        var result = new SqliteManager().Select(query);
+        entityList.Items.Clear();
+        articlesOrderId.Clear();
+        List<EntityControl> flowLayoutPanelBuffer = new List<EntityControl>();
+        for (int i = 0; i < result.Rows.Count; ++i)
+        {
+            try { 
+                var entity = new EntityControl
+                (
+                    result.Rows[i]["title"].ToString(),
+                    result.Rows[i]["link"].ToString(),
+                    result.Rows[i].IsNull("image") ? null : result.Rows[i]["image"].ToString(),
+                    result.Rows[i]["text"].ToString(),
+                    Bound.Width / 100 * 25,
+                    Bound.Width / 100 * 95,
+                    Bound.Height / 100 * 10,
+                    Bound.Height / 100 * 80
+                );
+                flowLayoutPanelBuffer.Add(entity);
+                entityList.Items.Add(result.Rows[i]["title"].ToString());
+                articlesOrderId.Add(i, result.Rows[i]["link"].ToString());
+            } catch { 
+                continue;
+            }
+        }
+        flowLayoutPanel.Controls.AddRange(flowLayoutPanelBuffer.ToArray());
+    }
+    private void NewestMenuItem_Click(object sender, EventArgs e) 
+    {
+        flowLayoutPanel.Controls.Clear();
+        var query = new QueryBuilder().Select("title, link, image, text")
+                                          .From("articles")
+                                          .Order("date", "DESC")
+                                          .Order("link", "DESC")
+                                          .Get();
+        var result = new SqliteManager().Select(query);
+        entityList.Items.Clear();
+        articlesOrderId.Clear();
+        List<EntityControl> flowLayoutPanelBuffer = new List<EntityControl>();
+        for (int i = 0; i < result.Rows.Count; ++i)
+        {
+            try { 
+                var entity = new EntityControl
+                (
+                    result.Rows[i]["title"].ToString(),
+                    result.Rows[i]["link"].ToString(),
+                    result.Rows[i].IsNull("image") ? null : result.Rows[i]["image"].ToString(),
+                    result.Rows[i]["text"].ToString(),
+                    Bound.Width / 100 * 25,
+                    Bound.Width / 100 * 95,
+                    Bound.Height / 100 * 10,
+                    Bound.Height / 100 * 80
+                );
+                flowLayoutPanelBuffer.Add(entity);
+                entityList.Items.Add(result.Rows[i]["title"].ToString());
+                articlesOrderId.Add(i, result.Rows[i]["link"].ToString());
+            } catch { 
+                continue;
+            }
+        }
+        flowLayoutPanel.Controls.AddRange(flowLayoutPanelBuffer.ToArray());
     }
     private void InitializeLeftPanel()
     {
@@ -103,22 +298,22 @@ public partial class MainForm : Form
             BackColor = Color.FromArgb(255, 133, 176, 240),
             Size = new Size(leftPanel.Width, leftPanel.Height),
         };
-        var query = new QueryBuilder().Select("id, title")
+        var query = new QueryBuilder().Select("link, title")
                 .From("articles")
                 .Get();
         var result = new SqliteManager().Select(query);
-        articlesOrderId = new Dictionary<int, int>();
+        articlesOrderId = new Dictionary<int, string>();
         for(int i = 0; i < result.Rows.Count; ++i)
         {
             entityList.Items.Add(result.Rows[i]["title"]);
-            articlesOrderId.Add(i, Int32.Parse(result.Rows[i]["id"].ToString()));
+            articlesOrderId.Add(i, result.Rows[i]["link"].ToString());
         }
         entityList.SelectedIndexChanged += EntityList_SelectedIndexChanged;
         leftPanel.Controls.Add(entityList);
     }
     private void InitializeTimer()
     {
-        timer = new Timer();
+        timer = new System.Windows.Forms.Timer();
         timer.Interval = 1000;
         timer.Tick += Timer_Tick;
         timer.Start();
@@ -158,7 +353,7 @@ public partial class MainForm : Form
         {
             var query = new QueryBuilder().Select("title, link, text, image")
                                           .From("articles")
-                                          .AndWhere(new Where("id", $"{articlesOrderId[selectedIndex]}"))
+                                          .AndWhere(new Where("link", $"'{articlesOrderId[selectedIndex]}'"))
                                           .Get();
             var result = new SqliteManager().Select(query);
             if (result.Rows.Count > 0) { 
@@ -172,7 +367,7 @@ public partial class MainForm : Form
                     Bound.Width / 100 * 25,
                     Bound.Width / 100 * 95,
                     Bound.Height / 100 * 10,
-                    Bound.Width / 100 * 90
+                    Bound.Height / 100 * 80
                 );
 
                 flowLayoutPanel.Controls.Add(entity);

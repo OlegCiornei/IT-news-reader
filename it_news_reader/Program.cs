@@ -31,7 +31,7 @@ internal static class Program
             manager.Insert(insertQuery);
         });
         
-        Task.Run(() => Application.Run(new MainForm()));
+        var formTask = Task.Run(() => Application.Run(new MainForm()));
         
         using (var cancellationTokenSource = new CancellationTokenSource())
         {
@@ -46,6 +46,7 @@ internal static class Program
             await workerTask;
         }
 
+        await formTask;
     }
 
     private static string ToStringList(string[] values)
