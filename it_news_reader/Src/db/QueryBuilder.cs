@@ -17,7 +17,7 @@ internal class QueryBuilder
     {
         { SELECT, "select %fields% from %table% %where% %limit%;" },
         { UPDATE, "update %table% SET %values% %where%;" },
-        { INSERT, "insert into %table% (%fields%) values (%values%);" },
+        { INSERT, "insert or replace into %table% (%fields%) values (%values%);" },
         { DELETE, "delete from  %table% %where%;" }
     };
 

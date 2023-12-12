@@ -1,6 +1,6 @@
 ﻿namespace it_news_reader;
 
-partial class MainFrom
+partial class MainForm
 {
     /// <summary>
     ///  Required designer variable.

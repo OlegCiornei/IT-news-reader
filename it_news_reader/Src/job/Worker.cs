@@ -1,27 +1,19 @@
-﻿using System;
-using System.Threading.Tasks;
-using it_news_reader.parser;
+﻿using it_news_reader.parser;
 using it_news_reader.parser.entities;
 
 namespace it_news_reader.job
 {
     internal class Worker
     {
-        private readonly SqliteManager _sqliteManager;
-        private readonly ArticlesParser _articlesParser;
-
-        public Worker()
-        {
-            _sqliteManager = new SqliteManager();
-        }
+        private readonly SqliteManager _sqliteManager = new();
 
         public async Task StartAsync(CancellationToken cancellationToken, List<Sites> sites)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                Console.WriteLine("sadasd");
                 DeleteOldData();
-                
+                Console.WriteLine(@"Old articles deleted from database.");
+
                 ArticlesParser.GetArticles(sites).ForEach(i =>
                 {
                     var insertQuery = new QueryBuilder().Insert("articles")
@@ -34,13 +26,13 @@ namespace it_news_reader.job
                         })).Get();
                     _sqliteManager.Insert(insertQuery);
                 });
-               
+
+                Console.WriteLine(@"New articles are persisted in database.");
                 // await Task.Delay(TimeSpan.FromHours(4));
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(1 * 60), cancellationToken);
             }
-          
         }
-        
+
         private static string ToStringList(string[] values)
         {
             return "'" + string.Join("','", values) + "'";

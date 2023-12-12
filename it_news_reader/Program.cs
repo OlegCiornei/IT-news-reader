@@ -31,7 +31,7 @@ internal static class Program
             manager.Insert(insertQuery);
         });
         
-        Task.Run(() => Application.Run(new MainFrom()));
+        Task.Run(() => Application.Run(new MainForm()));
         
         using (var cancellationTokenSource = new CancellationTokenSource())
         {
