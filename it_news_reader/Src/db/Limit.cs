@@ -9,7 +9,13 @@ internal class Limit
     {
         Offset = offset;
         Lim = lim;
+        
+
+
+
+
     }
+   
 
     public string Get()
     {
