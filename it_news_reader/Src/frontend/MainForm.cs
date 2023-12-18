@@ -20,7 +20,6 @@ public partial class MainForm : Form
 
     public MainForm()
     {
-        //InitializeComponent();
         BackColor = Color.LightBlue;
         WindowState = FormWindowState.Maximized;
         Text = "newSearcher";
