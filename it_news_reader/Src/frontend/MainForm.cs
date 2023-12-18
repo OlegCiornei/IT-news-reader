@@ -23,6 +23,7 @@ public partial class MainForm : Form
         //InitializeComponent();
         BackColor = Color.LightBlue;
         WindowState = FormWindowState.Maximized;
+        Text = "newSearcher";
         InitializeUI();
     }
 
