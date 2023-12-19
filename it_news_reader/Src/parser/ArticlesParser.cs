@@ -32,11 +32,11 @@ abstract class ArticlesParser
                         links[currentArticle].OuterHtml, site.StartLinkPattern, site.EndLinkPattern);
 
                     string imageLink = null!;
-                    if (articlesParsed[currentArticle].OuterHtml.Contains(site.ImageStartLinkPatter))
+                    if (articlesParsed[currentArticle].OuterHtml.Contains(site.ImageStartLinkPattern))
                     {
                         imageLink = ExtractSubstringBetweenPatterns(
-                            articlesParsed[currentArticle].OuterHtml, site.ImageStartLinkPatter,
-                            site.ImageEndLinkPatter);
+                            articlesParsed[currentArticle].OuterHtml, site.ImageStartLinkPattern,
+                            site.ImageEndLinkPattern);
                     }
 
                     articles.Add(new Article(title, text, site.Domain + link, imageLink!));
@@ -44,7 +44,7 @@ abstract class ArticlesParser
             }
             else
             {
-                Console.WriteLine("Unable to find news on " + site.Domain);
+                Console.WriteLine(@"Unable to find news on " + site.Domain);
             }
         }
 

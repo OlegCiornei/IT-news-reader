@@ -4,7 +4,7 @@ public class Sites
 {
     private Sites(string domain, string url, string articleTag, string titleTag,
         string textTag, string linkTag, string startLinkPattern, string endLinkPattern,
-        string imageStartLinkPattern, string imageEndLinkPatter)
+        string imageStartLinkPattern, string imageEndLinkPattern)
     {
         Domain = domain;
         Url = url;
@@ -14,8 +14,8 @@ public class Sites
         LinkTag = linkTag;
         StartLinkPattern = startLinkPattern;
         EndLinkPattern = endLinkPattern;
-        ImageStartLinkPatter = imageStartLinkPattern;
-        ImageEndLinkPatter = imageEndLinkPatter;
+        ImageStartLinkPattern = imageStartLinkPattern;
+        ImageEndLinkPattern = imageEndLinkPattern;
     }
 
     public string Domain { get; private set; }
@@ -26,8 +26,8 @@ public class Sites
     public string LinkTag { get; private set; }
     public string StartLinkPattern { get; private set; }
     public string EndLinkPattern { get; private set; }
-    public string ImageStartLinkPatter { get; private set; }
-    public string ImageEndLinkPatter { get; private set; }
+    public string ImageStartLinkPattern { get; private set; }
+    public string ImageEndLinkPattern { get; private set; }
 
     public static Sites Habr => new("https://habr.com", "https://habr.com/ru/news/",
         "//article",
